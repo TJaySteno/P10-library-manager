@@ -1,17 +1,7 @@
-extends index
+extends table
 
-block loans-content
+block loans-table-content
   tbody
-    tr
-      td
-        a(href="book_detail") Emma
-      td
-        a(href="patron_detail") Dave McFarland
-      td 2015-12-10
-      td 2020-10-20
-      td
-      td
-        a(href="return_book" className="button") Return Book
     tr
       td
         a(href="book_detail") Harry Potter and the Goblet of Fire
@@ -21,7 +11,7 @@ block loans-content
       td 2015-12-18
       td
       td
-        a(href="return_book" className="button") Return Book
+        a(href="return_book" class="button") Return Book
     tr
       td
         a(href="book_detail") A Brief History of Time
@@ -31,7 +21,7 @@ block loans-content
       td 2015-12-19
       td
       td
-        a(href="return_book" className="button") Return Book
+        a(href="return_book" class="button") Return Book
     tr
       td
         a(href="book_detail") The Universe in a Nutshell
@@ -41,4 +31,4 @@ block loans-content
       td 2015-12-20
       td
       td
-        a(href="return_book" className="button") Return Book
+        a(href="return_book" class="button") Return Book
