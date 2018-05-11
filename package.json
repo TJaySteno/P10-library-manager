@@ -2,10 +2,10 @@
   "name": "p10-library-manager",
   "version": "1.0.0",
   "description": "Use Sequelize and Node to manage the database for a library",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "start": "node ./bin/www",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nodemon ./bin/www"
   },
   "keywords": [
     "express",

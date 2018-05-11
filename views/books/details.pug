@@ -9,10 +9,10 @@ block content
       label(for="author") Author
       input(id="author" type="text" value="Stephen Hawking")
     p
-      label(for="genre) Genre
+      label(for="genre") Genre
       input(id="genre" type="text" value="Non Fiction")
     p
-      label(for="first_published) First Published
+      label(for="first_published") First Published
       input(id="first_published" type="text" value="1988")
     p
       input(type="submit" value="Update")
@@ -29,11 +29,11 @@ block content
     tbody
       tr
         td
-          a(href="/books/detail?id=id") A Brief History of Time
+          a(href="/books/details") A Brief History of Time
         td
-          a(href="/patrons/detail?id=id") Andrew Chalkley
+          a(href="/patrons/details") Andrew Chalkley
         td 2015-12-12
         td 2015-12-19
         td
         td
-          a(href="/books/return_book?id=id" className="button") Return Book
+          a(href="/books/return_book" class="button") Return Book
