@@ -1,6 +1,5 @@
 extends layout
 
 block content
-  form
-    h2(class="error")= status
-    p(class="error")= message
+  h2= `${message} (${error.status})`
+  pre #{error.stack}
