@@ -1,0 +1,25 @@
+extends book-details
+
+block loan-history
+  h2 Loan History
+  table
+    thead
+      tr
+        th Book
+        th Patron
+        th Loaned on
+        th Return by
+        th Returned on
+        th Action
+    tbody
+      each loan in loans
+        tr
+          td
+            a(href=`/books/details/${loan.book.id}`)= loan.book.title
+          td
+            a(href=`/patrons/details/${loan.patron.id}`)= loan.patron.name
+          td= 2015-12-12
+          td= 2015-12-19
+          td= a
+          td=
+            (loan.book.returned) ? '' : a(href=`/books/return/${loan.book.id}` class="button") Return Book

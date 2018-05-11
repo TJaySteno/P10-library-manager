@@ -1,6 +1,6 @@
-extends index
+extends ../layout
 
-block books-table
+block content
   p
     a(href="/books/new" class="button") Create New Book
   p Filters
@@ -17,4 +17,4 @@ block books-table
         th Genre
         th Year Released
     tbody
-      block books-table-content
+      block books-list

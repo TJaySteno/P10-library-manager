@@ -10,23 +10,29 @@ booksRouter.get('/', (req, res, next) => {
 /* GET all books. */
 booksRouter.get('/all', (req, res, next) => {
   Book.findAll().then(books => {
-    res.render('books/all', { books: books, title: 'All Books' });
+    res.render('books/books-list', { books: books, title: 'All Books' });
   });
 });
 
 /* GET overdue books. */
 booksRouter.get('/overdue', (req, res, next) => {
-  res.render('books/overdue', { title: 'Overdue Books' });
+  Book.findAll().then(books => {
+    // filter by overdue
+    res.render('books/books-list', { books: books, title: 'All Books' });
+  });
 });
 
 /* GET checkout out books. */
 booksRouter.get('/checked_out', (req, res, next) => {
-  res.render('books/checked', { title: 'Checked Out' });
+  Book.findAll().then(books => {
+    // filter by checked out
+    res.render('books/books-list', { books: books, title: 'All Books' });
+  });
 });
 
 /* GET form to post a new book. */
 booksRouter.get('/new', (req, res, next) => {
-  res.render('books/new', { book: Book.build(), title: 'New Book' });
+  res.render('books/book-details', { book: Book.build(), title: 'New Book' });
 });
 
 /* GET form to post a new book. */
@@ -46,7 +52,7 @@ booksRouter.post('/details/:id', function (req, res, next) {
 /* GET book details. */
 booksRouter.get('/details/:id', (req, res, next) => {
   Book.findById(req.params.id).then(book => {
-    res.render('books/details', {
+    res.render('books/loan-history', {
       book: book.dataValues,
       title: book.dataValues.title
     });
