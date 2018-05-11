@@ -13,5 +13,10 @@
     "database"
   ],
   "author": "Trent Stenoien",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "sequelize": "^4.37.7",
+    "sequelize-cli": "^4.0.0",
+    "sqlite3": "^4.0.0"
+  }
 }
