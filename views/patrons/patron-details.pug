@@ -1,4 +1,4 @@
-extends main
+extends layout
 
 block content
   form
@@ -22,34 +22,4 @@ block content
       input(id="zip_code" type="text" value="90210")
     p
       input(type="submit" value="Update")
-  h2 Loan History
-  table
-    thead
-      tr
-        th Book
-        th Patron
-        th Loaned on
-        th Return by
-        th Returned on
-        th Action
-    tbody
-      tr
-        td
-          a(href="book_detail.html") Harry Potter and the Goblet of Fire
-        td
-          a(href="patron_detail.html") Andrew Chalkley
-        td 2015-12-11
-        td 2015-12-18
-        td
-        td
-          a(href="return_book.html" className="button") Return Book
-      tr
-        td
-          a(href="book_detail.html") A Brief History of Time
-        td
-          a(href="patron_detail.html") Andrew Chalkley
-        td 2015-12-12
-        td 2015-12-19
-        td
-        td
-          a(href="return_book.html" className="button") Return Book
+  block patron-loans

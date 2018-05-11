@@ -1,21 +1,21 @@
-extends main
+extends index
 
 block content
   form
-      p
-        label(for="title") Title
-        input(id="title" type="text" value="A Brief History of Time")
-      p
-        label(for="author") Author
-        input(id="author" type="text" value="Stephen Hawking")
-      p
-        label(for="genre) Genre
-        input(id="genre" type="text" value="Non Fiction")
-      p
-        label(for="first_published) First Published
-        input(id="first_published" type="text" value="1988")
-      p
-        input(type="submit" value="Update")
+    p
+      label(for="title") Title
+      input(id="title" type="text" value="A Brief History of Time")
+    p
+      label(for="author") Author
+      input(id="author" type="text" value="Stephen Hawking")
+    p
+      label(for="genre) Genre
+      input(id="genre" type="text" value="Non Fiction")
+    p
+      label(for="first_published) First Published
+      input(id="first_published" type="text" value="1988")
+    p
+      input(type="submit" value="Update")
   h2 Loan History
   table
     thead
@@ -29,11 +29,11 @@ block content
     tbody
       tr
         td
-          a(href="book_detail.html") A Brief History of Time
+          a(href="/books/detail?id=id") A Brief History of Time
         td
-          a(href="patron_detail.html") Andrew Chalkley
+          a(href="/patrons/detail?id=id") Andrew Chalkley
         td 2015-12-12
         td 2015-12-19
         td
         td
-          a(href="return_book.html" className="button") Return Book
+          a(href="/books/return_book?id=id" className="button") Return Book

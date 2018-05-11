@@ -1,0 +1,18 @@
+extends index
+
+block books-header
+  p
+    a(href="/book/new" className="button") Create New Book
+  p Filters
+    a(href="/books/all" All
+    |
+    a(href="/books/overdue") Overdue
+    |
+    a(href="/books/checked_out") Checked Out
+  table
+    thead
+      tr
+        th Title
+        th Author
+        th Genre
+        th Year Released

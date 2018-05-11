@@ -1,46 +1,30 @@
-extends main
+extends index
 
-block content
-  p
-    a(href="new_book.html" className="button") Create New Book
-  p Filters
-    a(href="all_books.html") All
-    |
-    a(href="overdue_books.html") Overdue
-    |
-    a(href="checked_books.html") Checked Out
-  table
-    thead
-      tr
-        th Title
-        th Author
-        th Genre
-        th Year Released
-    tbody
-      tr
-        td
-          a(href="book_detail.html") Emma
-        td Jane Austen
-        td Classic
-        td 1815
+block books-content
+  tbody
+    tr
+      td
+        a(href="/books/detail?id=id") Emma
+      td Jane Austen
+      td Classic
+      td 1815
+    tr
+      td
+        a(href="/books/detail?id=id") Harry Potter and the Goblet of Fire
+      td J.K. Rowling
+      td Fantasy
+      td 2000
 
-      tr
-        td
-          a(href="book_detail.html") Harry Potter and the Goblet of Fire
-        td J.K. Rowling
-        td Fantasy
-        td 2000
+    tr
+      td
+        a(href="/books/detail?id=id") Brief History of Time
+      td Stephen Hawking
+      td Non Fiction
+      td 1988
 
-      tr
-        td
-          a(href="book_detail.html") Brief History of Time
-        td Stephen Hawking
-        td Non Fiction
-        td 1988
-
-      tr
-        td
-          a(href="book_detail.html") The Universe in Nutshell
-        td Stephen Hawking
-        td Non Fiction
-        td 2001
+    tr
+      td
+        a(href="/books/detail?id=id") The Universe in Nutshell
+      td Stephen Hawking
+      td Non Fiction
+      td 2001
