@@ -1,44 +1,84 @@
-var express = require('express');
-var booksRouter = express.Router();
+const express = require('express');
+const booksRouter = express.Router();
+const Book = require('../models').Book;
 
 /* REDIRECT to all books. */
-booksRouter.get('/', function(req, res, next) {
+booksRouter.get('/', (req, res, next) => {
   res.redirect('/books/all');
 });
 
 /* GET all books. */
-booksRouter.get('/all', function(req, res, next) {
-  var view = require.resolve('../views/books/all.pug');
-  res.render(view, { title: 'All Books' });
+booksRouter.get('/all', (req, res, next) => {
+  Book.findAll().then(books => {
+    res.render('books/all', { books: books, title: 'All Books' });
+  });
 });
 
 /* GET overdue books. */
-booksRouter.get('/overdue', function(req, res, next) {
-  var view = require.resolve('../views/books/overdue.pug');
-  res.render(view, { title: 'Overdue Books' });
+booksRouter.get('/overdue', (req, res, next) => {
+  res.render('books/overdue', { title: 'Overdue Books' });
 });
 
 /* GET checkout out books. */
-booksRouter.get('/checked_out', function(req, res, next) {
-  var view = require.resolve('../views/books/checked.pug');
-  res.render(view, { title: 'Checked Out' });
+booksRouter.get('/checked_out', (req, res, next) => {
+  res.render('books/checked', { title: 'Checked Out' });
 });
 
 /* GET form to post a new book. */
-booksRouter.get('/new', function(req, res, next) {
-  var view = require.resolve('../views/books/new.pug');
-  res.render(view, { title: 'New Book' });
+booksRouter.get('/new', (req, res, next) => {
+  res.render('books/new', { book: Book.build(), title: 'New Book' });
+});
+
+/* GET form to post a new book. */
+booksRouter.post('/new', (req, res, next) => {
+  Book.create(req.body).then(book => {
+    res.redirect('/books/details/' + book.id);
+  });
+});
+
+/* GET form to post a new book. */
+booksRouter.post('/details/:id', function (req, res, next) {
+  Book.create(req.body).then(book => {
+    res.redirect('/books/details/' + book.id);
+  });
 });
 
 /* GET book details. */
-booksRouter.get('/details', function(req, res, next) {
-  var view = require.resolve('../views/books/details.pug');
-  res.render(view, { title: 'Book Details' });
+booksRouter.get('/details/:id', (req, res, next) => {
+  Book.findById(req.params.id).then(book => {
+    res.render('books/details', {
+      book: book.dataValues,
+      title: book.dataValues.title
+    });
+  });
+});
+
+
+
+
+// /* GET individual article. */
+// router.get("/:id", function(req, res, next){
+//   Article.findById(req.params.id).then(function(article){
+//     if(article) {
+//       res.render("articles/show", {article: article, title: article.title});
+//     } else {
+//       res.send(404);
+//     }
+//   }).catch(function(error){
+//       res.send(500, error);
+//    });
+// });
+
+/* GET form to post a new book. */
+booksRouter.post('/details', (req, res, next) => {
+  Book.create(req.body).then(book => {
+    res.redirect('/books/details/' + book.id);
+  });
 });
 
 /* GET form to enter a book return. */
-booksRouter.get('/return', function(req, res, next) {
-  var view = require.resolve('../views/books/return.pug');
+booksRouter.get('/return', (req, res, next) => {
+  const view = require.resolve('../views/books/return.pug');
   res.render(view, { title: 'Book Return' });
 });
 

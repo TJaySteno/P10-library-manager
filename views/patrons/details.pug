@@ -4,22 +4,22 @@ block patron-table
   form
     p
       label(for="first_name") First Name
-      input(id="first_name" type="text" value="Andrew")
+      input(id="first_name" type="text" placeholder="Peter" value="Andrew")
     p
       label(for="last_name") Last Name
-      input(id="last_name" type="text" value="Chalkley")
+      input(id="last_name" type="text" placeholder="Piper" value="Chalkley")
     p
-      label(for="address")  Address
-      input(id="address" type="text" value="1234 NE 20st St")
+      label(for="address") Address
+      input(id="address" type="text" placeholder="123 W 45th St" value="1234 NE 20st St")
     p
       label(for="email") Email
-      input(id="email" type="text" value="andrew.chalkley@teamtreehouse.com")
+      input(id="email" type="text" placeholder="peter.piper@pickled-peppers.com" value="andrew.chalkley@teamtreehouse.com")
     p
       label(for="library_id") Library ID
-      input(id="library_id" type="text" value="MCL1001")
+      input(id="library_id" type="text" placeholder="MCL8675" value="MCL1001")
     p
       label(for="zip_code") Zip Code
-      input(id="zip_code" type="text" value="90210")
+      input(id="zip_code" type="text" placeholder="30900" value="90210")
     p
       input(type="submit" value="Update")
   block patron-loans

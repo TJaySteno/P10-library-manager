@@ -1,18 +1,18 @@
 extends index
 
 block books-content
-  form
+  form(action="/books/new" method="post")
     p
       label(for="title") Title
-      input(id="title" type="text")
+      input(id="title" type="text" name="title" placeholder="Ender's Game")
     p
       label(for="author") Author
-      input(id="author" type="text")
+      input(id="author" type="text" name="author" placeholder="Orson Scott Card")
     p
       label(for="genre") Genre
-      input(id="genre" type="text")
+      input(id="genre" type="text" name="genre" placeholder="Science Fiction")
     p
       label(for="first_published") First Published
-      input(id="first_published" type="text")
+      input(id="first_published" type="text" name="first_published" placeholder="1985")
     p
       input(type="submit" value="Create New Book")

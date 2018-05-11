@@ -1,21 +1,10 @@
 extends table
 
 block books-table-content
-  tr
-    td
-      a(href="/books/details") Harry Potter and the Philosopher's Stone
-    td J.K. Rowling
-    td Fantasy
-    td 1997
-  tr
-    td
-      a(href="/books/details") Harry Potter and the Chamber of Secrets
-    td J.K. Rowling
-    td Fantasy
-    td 1998
-  tr
-    td
-      a(href="/books/details") Harry Potter and the Prisoner of Azkaban
-    td J.K. Rowling
-    td Fantasy
-    td 1999
+  each book in books
+    tr
+      td
+        a(href=`/books/details/${book.id}`)= book.title
+      td= book.author
+      td= book.genre
+      td= book.first_published
