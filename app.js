@@ -39,9 +39,11 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
+  console.log(res.locals);
   res.render('error', {
-    title: `Error: ${err.status}`,
-    message: res.locals.message
+    title: err.message,
+    status: res.statusCode,
+    message: err.toString()
   });
 });
 
