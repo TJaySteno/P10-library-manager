@@ -1,0 +1,37 @@
+extends main
+
+block content
+  p
+    a(href="new_book.html" class="button" class="button") Create New Book
+  p Filters
+    a(href="all_books.html" All
+    |
+    a(href="overdue_books.html") Overdue
+    |
+    a(href="checked_books.html") Checked Out
+  table
+    thead
+      tr
+        th Title
+        th Author
+        th Genre
+        th Year Released
+    tbody
+      tr
+        td
+          a(href="book_detail.html") Harry Potter and the Philosopher's Stone
+        td J.K. Rowling
+        td Fantasy
+        td 1997
+      tr
+        td
+          a(href="book_detail.html") Harry Potter and the Chamber of Secrets
+        td J.K. Rowling
+        td Fantasy
+        td 1998
+      tr
+        td
+          a(href="book_detail.html") Harry Potter and the Prisoner of Azkaban
+        td J.K. Rowling
+        td Fantasy
+        td 1999
