@@ -9,20 +9,24 @@ booksRouter.get('/', (req, res, next) => {
 
 /* GET all books. */
 booksRouter.get('/all', (req, res, next) => {
-  Book.findAll().then(books => {
-    res.render('books/books-list', { books: books, title: 'All Books' });
-  });
+  Book.findAll()
+    .then(books => {
+      res.render('books/book-list', {
+        title: 'All Books',
+        books
+      });
+    });
 });
 
 /* GET overdue books. */
 booksRouter.get('/overdue', (req, res, next) => {
   Book.findAll({
     where: {
-      id: 1
       // overdue: true
+      id: 1
     }
   }).then(books => {
-    res.render('books/books-list', { books: books, title: 'All Books' });
+    res.render('books/book-list', { books: books, title: 'All Books' });
   });
 });
 
@@ -30,11 +34,11 @@ booksRouter.get('/overdue', (req, res, next) => {
 booksRouter.get('/checked_out', (req, res, next) => {
   Book.findAll({
     where: {
-      id: 2
       // checked_out: true
+      id: 2
     }
   }).then(books => {
-    res.render('books/books-list', { books: books, title: 'All Books' });
+    res.render('books/book-list', { books: books, title: 'All Books' });
   });
 });
 
@@ -69,13 +73,8 @@ booksRouter.get('/details/:id', (req, res, next) => {
 /* POST new book details to update its DB row. */
 booksRouter.post('/details/:id', (req, res, next) => {
   Book.findById(req.params.id)
-    .then(book => {
-      book.update(req.body);
-      return book;
-    })
-    .then(book => {
-      res.redirect('/books/details/' + book.id);
-    });
+    .then(book => book.update(req.body))
+    .then(book => res.redirect('/books/details/' + book.id));
 });
 
 /* GET form to enter a book return. */
@@ -86,6 +85,7 @@ booksRouter.get('/return', (req, res, next) => {
   const date = new Date().toString();
   const now = date.split(regexDay)[1].split(regexTime)[0];
 
+  // Attach a loan here
   res.render('books/return', {
     title: 'Book Return',
     patron: 'Joe',
