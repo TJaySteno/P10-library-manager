@@ -2,6 +2,10 @@ extends ../layout
 
 block content
   form(action=`/patrons/details/${patron.id || 'new'}` method="post")
+    if errors
+      ul.error
+        each error in errors
+          li= error.message
     p
       label(for="first_name") First Name
       input(id="first_name" type="text" name="first_name" placeholder="Muffin" value=`${patron.first_name || ''}`)

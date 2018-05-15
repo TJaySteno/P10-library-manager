@@ -2,6 +2,10 @@ extends ../layout
 
 block content
   form(action=`/books/details/${book.id || 'new'}` method="post")
+    if errors
+      ul.error
+        each error in errors
+          li= error.message
     p
       label(for="title") Title
       input(id="title" type="text" name="title" placeholder="Ender's Game" value=`${book.title || ''}`)
@@ -16,4 +20,4 @@ block content
       input(id="first_published" type="text" name="first_published" placeholder="1985" value=`${book.first_published || ''}`)
     p
       input(type="submit" value= buttonText)
-  block loan-history
+  block book-loans
