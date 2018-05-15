@@ -18,8 +18,9 @@ block loan-history
             a(href=`/books/details/${loan.book.id}`)= loan.book.title
           td
             a(href=`/patrons/details/${loan.patron.id}`)= loan.patron.name
-          td= 2015-12-12
-          td= 2015-12-19
-          td= a
+          td= loan.loaned_on
+          td= loan.return_by
+          td= loan.returned_on
           td
-            a(href=`/books/return/${loan.book.id}` class="button") Return Book
+            if (!loan.returned_on)
+              a(href=`/books/return/${loan.book.id}` class="button") Return Book

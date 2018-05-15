@@ -1,6 +1,6 @@
-extends index
+extends ../layout
 
-block loans-table
+block content
   p
     p
       a(href="/loans/new" class="button") Create New Book
@@ -20,4 +20,4 @@ block loans-table
         th Returned on
         th Action
     tbody
-      block loans-table-content
+      block loan-list
