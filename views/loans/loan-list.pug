@@ -3,13 +3,12 @@ extends loan-table
 block loan-list
   tbody
     each loan in loans
-      - console.log(loan);
       - const patronName = `${loan.patron.first_name} ${loan.patron.last_name}`;
       tr
         td
           a(href=`/books/details/${loan.book.id}`)= loan.book.name
         td
-          a(href=`/patrons/${loan.patron.id}`)= patronName
+          a(href=`/patrons/details/${loan.patron.id}`)= patronName
         td= loan.loaned_on
         td= loan.return_by
         td= loan.returned_on

@@ -68,7 +68,7 @@ booksRouter.get('/details/:id', (req, res, next) => {
   Book.findById(req.params.id)
     .then(book => {
       if (book) {
-        res.render('books/loan-history', {
+        res.render('books/book-loans', {
           title: book.dataValues.title,
           book: book.dataValues,
           loans: []
@@ -93,7 +93,7 @@ booksRouter.post('/details/:id', (req, res, next) => {
         const book = Book.build(req.body);
         book.id = req.params.id;
 
-        res.render('books/loan-history', {
+        res.render('books/book-loans', {
           title: book.title,
           book,
           loans: [],

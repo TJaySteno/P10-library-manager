@@ -28,11 +28,8 @@ patronsRouter.get('/details/new', (req, res, next) => {
 patronsRouter.post('/details/new', (req, res, next) => {
   Patron.create(req.body)
     // update full name
-    .then(patron => {
-      res.redirect('/patrons/all');
-    })
+    .then(patron => res.redirect('/patrons/all'))
     .catch(err => {
-      console.log(err);
       if (err.name === "SequelizeValidationError") {
         res.render('patrons/patron-details', {
           patron: Patron.build(req.body),

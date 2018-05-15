@@ -31,11 +31,8 @@ module.exports = (sequelize, DataTypes) => {
       first_published: DataTypes.INTEGER
     });
 
-    // Return a readable date (mmm dd yyyy)
-    Book.now = () =>
-    new Date().toString()
-    .split(/^\w{3}\s/)[1]
-    .split(/\s\d{2}:\d{2}:\d{2}/)[0]
+    // Return a readable date (yyyy-mm-dd)
+    Book.now = () => new Date().toISOString().match(/^\d{4}-\d{2}-\d{2}/);
 
     Book.associate = function(models) {
       // associations can be defined here
