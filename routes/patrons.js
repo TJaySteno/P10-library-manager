@@ -28,6 +28,7 @@ patronsRouter.get('/details/new', (req, res, next) => {
 /* POST form to create a new patron. */
 patronsRouter.post('/details/new', (req, res, next) => {
   Patron.create(req.body)
+    // update full name
     .then(patron => {
       res.redirect('/patrons/details/' + patron.id);
   });

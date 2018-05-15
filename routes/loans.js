@@ -1,5 +1,7 @@
 const express = require('express');
 const loansRouter = express.Router();
+const Loan = require('../models').Loan;
+const Book = require('../models').Book;
 const Patron = require('../models').Patron;
 
 /* REDIRECT to all loans. */
@@ -9,26 +11,52 @@ loansRouter.get('/', (req, res, next) => {
 
 /* GET all loans. */
 loansRouter.get('/all', (req, res, next) => {
-  const view = require.resolve('../views/loans/all.pug');
-  res.render(view, { title: 'All Loans' });
+  res.render('loans/loan-list', {
+    title: 'All Loans',
+    loans: [
+      {
+        book: {},
+        patron: {}
+      }
+    ]
+  });
 });
 
 /* GET overdue loans. */
 loansRouter.get('/overdue', (req, res, next) => {
-  const view = require.resolve('../views/loans/overdue.pug');
-  res.render(view, { title: 'Overdue Loans' });
+  res.render('loans/loan-list', {
+    title: 'All Loans',
+    loans: [
+      {
+        book: {},
+        patron: {}
+      }
+    ]
+  });
 });
 
 /* GET loaned books. */
 loansRouter.get('/checked_out', (req, res, next) => {
-  const view = require.resolve('../views/loans/checked.pug');
-  res.render(view, { title: 'Loaned Books' });
+  res.render('loans/loan-list', {
+    title: 'All Loans',
+    loans: [
+      {
+        book: {},
+        patron: {}
+      }
+    ]
+  });
 });
 
 /* GET form to create a new loan. */
 loansRouter.get('/new', (req, res, next) => {
-  const view = require.resolve('../views/loans/new.pug');
-  res.render(view, { title: 'New Loan' });
+  res.render('loans/loan-new', {
+    title: 'New Loan',
+    books: [],
+    patrons: [],
+    loaned_on: Loan.date('loaned_on'),
+    return_by: Loan.date('return_by')
+  });
 });
 
 module.exports = loansRouter;
