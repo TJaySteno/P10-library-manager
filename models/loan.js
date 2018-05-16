@@ -25,7 +25,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATEONLY,
       isDate: { msg: "Please enter a valid date for the end of this loan" }
     },
-    returned_on: DataTypes.DATEONLY
+    returned_on: {
+      type: DataTypes.DATEONLY,
+      validate: {
+        is: { args: /^\d{4}-\d{2}-\d{2}$|^$/ }
+      }
+    }
   }, {timestamps: false, underscored: true});
 
   // Return a readable date (yyyy-mm-dd)
@@ -55,12 +60,9 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   Loan.associate = models => {
-    
+    Loan.belongsTo(models.Patron);
+    Loan.belongsTo(models.Book);
   }
 
   return Loan;
 };
-
-
-// book id, title
-// patron id, name

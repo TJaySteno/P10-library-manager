@@ -95,9 +95,6 @@ input[type=text], select {
 
 .error {
   margin: 0 0 25px 25px;
-}
-
-.error li {
-  font-weight: bold;
   color: firebrick;
+  font-weight: bold;
 }

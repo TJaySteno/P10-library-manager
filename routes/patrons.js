@@ -50,7 +50,7 @@ patronsRouter.get('/details/:id', (req, res, next) => {
       else {
         Loan.findAll({ where: { patron_id: patron.id } })
         .then(loans => {
-          const title = `Patron: ${patron.dataValues.first_name} ${patron.dataValues.last_name}`;
+          const title = `Patron Details: ${patron.dataValues.first_name} ${patron.dataValues.last_name}`;
           res.render('patrons/patron-details', {
             patron: patron.dataValues,
             title,

@@ -1,5 +1,7 @@
 const express = require('express');
 const booksRouter = express.Router();
+const Op = require('sequelize').Op;
+
 const Book = require('../models').Book;
 const Loan = require('../models').Loan;
 
@@ -7,130 +9,123 @@ const Loan = require('../models').Loan;
 booksRouter.get('/', (req, res, next) => res.redirect('/books/all'));
 
 /* GET all books. */
-booksRouter.get('/all', (req, res, next) => {
-  Book.findAll()
-    .then(books => {
-      res.render('books/book-list', {
-        title: 'Book Listing Page',
-        books
-      });
-    })
-    .catch(err => console.log(err));
+booksRouter.get('/all', async (req, res, next) => {
+  try {
+    const books = await Book.findAll();
+    res.render('books/book-list', { books, title: 'Book Listing Page' });
+  } catch (err) { next(err) }
 });
 
 /* GET overdue books. */
-booksRouter.get('/overdue', (req, res, next) => {
-  Book.findAll({
-      where: {
-        // return_by < today
-      }})
-    .then(books => {
-      res.render('books/book-list', { books: books, title: 'Overdue Books' });
-    })
-    .catch(err => console.log(err));
+booksRouter.get('/overdue', async (req, res, next) => {
+  try {
+    const overdueBooks = {
+      attributes: ['book_id'],
+      where: { return_by: { [Op.lt]: Book.now()[0] }}
+    };
+    const overdue = await Loan.findAll(overdueBooks);
+    const books = await Book.findBooks(overdue);
+    res.render('books/book-list', { books, title: 'Overdue Books' });
+  } catch (err) { next(err) }
 });
 
 /* GET checkout out books. */
-booksRouter.get('/checked_out', (req, res, next) => {
-  Book.findAll({
-      where: {
-        // !returned_on
-      }
-    })
-    .then(books => res.render('books/book-list', { books, title: 'Books Lent Out' }))
-    .catch(err => console.log(err));
+booksRouter.get('/checked_out', async (req, res, next) => {
+  try {
+    const booksNotReturned = {
+      attributes: ['book_id'],
+      where: { returned_on: { [Op.eq]: null }}
+    };
+    const notReturned = await Loan.findAll(booksNotReturned);
+    const books = await Book.findBooks(notReturned);
+    res.render('books/book-list', { books, title: 'Books Lent Out' });
+  } catch (err) { next(err) }
 });
 
 /* GET form to allow creation of a new book. */
-booksRouter.get('/details/new', (req, res, next) => {
-  res.render('books/book-details', {
-    book: {},
-    title: 'New Book'
-  });
-});
+booksRouter.get('/details/new', (req, res, next) =>
+  res.render('books/book-details', { book: {}, title: 'New Book' }));
 
 /* POST form to create a new book. */
-booksRouter.post('/details/new', (req, res, next) => {
-  console.log(req.body);
-  Book.create(req.body)
-    .then(book => res.redirect('/books/all'))
-    .catch(err => {
-      if (err.name === "SequelizeValidationError") {
-        res.render('books/book-details', {
-          book: Book.build(req.body),
-          title: 'New Book',
-          errors: err.errors
-        });
-      } else { throw err; }
-    })
-    .catch(err => console.log(err));
+booksRouter.post('/details/new', async (req, res, next) => {
+  try {
+    await Book.create(req.body);
+    res.redirect('/books/all');
+  } catch (err) {
+    err.name === "SequelizeValidationError"
+      ? res.render('books/book-details', Book.valErrOptions(req.body, err.errors))
+      : next(err)
+  }
 });
 
 /* GET book details. */
-booksRouter.get('/details/:id', (req, res, next) => {
-  Book.findById(req.params.id)
-    .then(book => {
-      if (!book) res.send(404);
-      else {
-        Loan.findAll({ where: { book_id: book.id } })
-        .then(loans => {
-          res.render('books/book-details', {
-            title: book.dataValues.title,
-            book: book.dataValues,
-            loans
-          });
-        })
-      }
-    })
-    .catch(err => console.log(err));
+booksRouter.get('/details/:id', async (req, res, next) => {
+  try {
+    const rawBook = await Book.findById(req.params.id);
+    const book = rawBook.dataValues;
+    console.log(book);
+    if (!book) throw new Error('Book not found');
+    const loans = await Loan.findAll({ where: { book_id: book.id } });
+    const title = `Book Details: ${book.title}`;
+    res.render('books/book-details', { title, book, loans });
+  } catch (err) { next(err) }
 });
 
 /* POST new book details to update its DB row. */
-booksRouter.post('/details/:id', (req, res, next) => {
-  Book.findById(req.params.id)
-    .then(book => {
-      if (book) return book.update(req.body);
-      else res.send(404)
-    })
-    .then(book => res.redirect('/books/details/' + book.id))
-    .catch(err => {
-      if (err.name === "SequelizeValidationError") {
-        Loan.findAll({ where: { book_id: book.id } })
-          .then(loans => {
-            const book = Book.build(req.body);
-            book.id = req.params.id;
-            const { title } = book;
-
-            res.render('books/book-loans', {
-              title,
-              book,
-              loans: [],
-              errors: err.errors
-            });
-          })
-          .catch(err => console.log(err));
-      } else { throw err; }
-    })
-    .catch(err => console.log(err));
+booksRouter.post('/details/:id', async (req, res, next) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) throw new Error('Book not found');
+    await book.update(req.body);
+    res.redirect('/books/details/' + book.id);
+  } catch (err) {
+    if (err.name === "SequelizeValidationError") {
+      const options = Book.valErrOptions(req.body, err.errors);
+      options.book.id = req.params.id;
+      options.title = `Book Details: ${req.body.title}`;
+      options.loans = await Book.getLoans(req.params.id, Loan);
+      res.render('books/book-details', options);
+    } else { next(err) }
+  }
 });
 
 /* GET form to enter a book return. */
-booksRouter.get('/return/:id', (req, res, next) => {
-  Loan.findById(req.params.id)
-    .then(loan => {
-      loan.dataValues.title = loan.book_title;
-      loan.dataValues.now = Book.now();
-      res.render('books/book-return', loan.dataValues);
-    })
-    .catch(err => console.log(err));
+booksRouter.get('/return/:id', async (req, res, next) => {
+  try {
+    const rawLoan = await Loan.findById(req.params.id);
+    const loan = rawLoan.dataValues;
+    if (!loan) throw new Error('Unable to find this loan');
+    loan.title = `Return Book: ${loan.book_title}`;
+    loan.now = Book.now();
+    res.render('books/book-return', loan);
+  } catch (err) { next(err) }
 });
 
 /* POST book return form. */
-booksRouter.post('/return/:id', (req, res, next) => {
-  Loan.findById(req.params.id)
-    .then(loan => loan.update(req.body))
-    .then(() => res.redirect('/loans/all'))
-    .catch(err => console.log(err));
+booksRouter.post('/return/:id', async (req, res, next) => {
+  try {
+    if (!req.body.returned_on) {
+      const err = new Error();
+      err.name = "SequelizeValidationError";
+      throw err;
+    }
+    const loan = await Loan.findById(req.params.id);
+    if (!loan) throw new Error('Unable to find this loan');
+    await loan.update(req.body);
+    res.redirect('/loans/all')
+  } catch (err) {
+    try {
+      if (err.name === "SequelizeValidationError") {
+        const rawLoan = await Loan.findById(req.params.id);
+        const loan = rawLoan.dataValues;
+        if (!loan) next(new Error('Unable to find this loan'));
+        loan.title = `Return Book: ${loan.book_title}`;
+        loan.now = Book.now();
+        loan.error = "Please provide a valid return date (yyyy-mm-dd) or leave that field blank";
+        res.render('books/book-return', loan);
+      } else { next(err) }
+    } catch (e) { next(e) }
+  }
 })
 
 module.exports = booksRouter;

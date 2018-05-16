@@ -13,5 +13,7 @@ block content
     p
       label(for="returned_on") Returned on:
       input(id="returned_on" type="text" value=`${now}` name="returned_on")
+      if error
+        p.error= error
     p
       input(type="submit" value="Return Book")
