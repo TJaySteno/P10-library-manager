@@ -11,25 +11,25 @@ module.exports = (sequelize, DataTypes) => {
     first_name: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: { msg: "Please provide a first name" }
+        notEmpty: { msg: "First Name: enter a first name" }
       }
     },
     last_name: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: { msg: "Please provide a last name" }
+        notEmpty: { msg: "Last Name: enter a last name" }
       }
     },
     address: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: { msg: "Please provide an address" }
+        notEmpty: { msg: "Address: enter an address" }
       }
     },
     email: {
       type: DataTypes.STRING,
       validate: {
-        isEmail: { msg: "Please provide a valid email" },
+        isEmail: { msg: "Email: enter a valid email" }
       }
     },
     library_id: {
@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         is: {
           args: /^MCL\d{4}$/,
-          msg: "Please enter a valid library ID (MCL####)"
+          msg: "Library ID: enter a valid ID ('MCL####')"
         }
       }
     },
@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         is: {
           args: [["^[0-9]{5}$"]],
-          msg: "Please enter a 5 digit zip code"
+          msg: "Zip Code: enter a valid Zip ('#####')"
         }
       }
     }

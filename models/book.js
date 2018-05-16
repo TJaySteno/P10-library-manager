@@ -10,19 +10,19 @@ module.exports = (sequelize, DataTypes) => {
     title: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: { msg: "Please provide a title" }
+        notEmpty: { msg: "Title: enter a title" }
       }
     },
     author: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: { msg: "Please provide an author" }
+        notEmpty: { msg: "Author: enter an author" }
       }
     },
     genre: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: { msg: "Please provide the genre" }
+        notEmpty: { msg: "Genre: enter a genre" }
       }
     },
     first_published: {
@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         is: {
           args: /^\d{1,4}$|^$/,
-          msg: "Please provide a valid year or leave that field blank"
+          msg: "First Published: leave this field blank or enter a valid year (1-4 digits)"
         }
       }
     },
@@ -42,6 +42,7 @@ module.exports = (sequelize, DataTypes) => {
   // Return an array of loans for a given book
   Book.getLoans = (book_id, Loan) => Loan.findAll({ where: { book_id } });
 
+  // Return an array of books of an array of loans containing book ids
   Book.findBooks = async loans => {
     const books = [];
     for (let i = 0; i < loans.length; i++) {
