@@ -52,5 +52,25 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {timestamps: false, underscored: true});
 
+  // Return an array of loans for a given patron
+  Patron.getLoans = (patron_id, Loan) => Loan.findAll({ where: { patron_id } });
+
+  // Return an array of patrons of an array of loans containing patron ids
+  Patron.findPatrons = async loans => {
+    const patrons = [];
+    for (let i = 0; i < loans.length; i++) {
+      const id = loans[i].dataValues.patron_id;
+      patrons.push(await Patron.findOne({ where: { id }}));
+    }
+    return patrons;
+  };
+
+  // Format and return validation error options
+  Patron.valErrOptions = (body, errors) => ({
+    patron: Patron.build(body),
+    title: 'New Patron',
+    errors
+  });
+
   return Patron;
 };

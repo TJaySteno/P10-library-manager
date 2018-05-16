@@ -7,80 +7,61 @@ const Loan = require('../models').Loan;
 patronsRouter.get('/', (req, res, next) => res.redirect('/patrons/all'));
 
 /* GET all patrons. */
-patronsRouter.get('/all', (req, res, next) => {
-  Patron.findAll().then(patrons => {
-    res.render('patrons/patron-list', {
-      title: 'Patrons Listing Page',
-      patrons
-    });
-  })
-  .catch(err => res.send(500));
+patronsRouter.get('/all', async (req, res, next) => {
+  try {
+    const patrons = await Patron.findAll();
+    res.render('patrons/patron-list', { patrons, title: 'Patrons Listing Page' });
+  } catch (err) { next(err) }
 });
 
 /* GET form to create a new patron. */
-patronsRouter.get('/details/new', (req, res, next) => {
-  res.render('patrons/patron-details', {
-    title: 'New Patron',
-    patron: {}
-  });
-});
+patronsRouter.get('/details/new', (req, res, next) =>
+  res.render('patrons/patron-details', { patron: {}, title: 'New Patron' }));
 
 /* POST form to create a new patron. */
-patronsRouter.post('/details/new', (req, res, next) => {
-  Patron.create(req.body)
-    // update full name
-    .then(patron => res.redirect('/patrons/all'))
-    .catch(err => {
-      if (err.name === "SequelizeValidationError") {
-        res.render('patrons/patron-details', {
-          patron: Patron.build(req.body),
-          title: 'New Patron',
-          errors: err.errors
-        });
-      } else { throw err; }
-    })
-    .catch(err => res.send(500));
+patronsRouter.post('/details/new', async (req, res, next) => {
+  try {
+    const patron = await Patron.create(req.body);
+    res.redirect('/patrons/all');
+  } catch (err) {
+    if (err.name === "SequelizeValidationError") {
+      const options = Patron.valErrOptions(req.body, err.errors);
+      res.render('patrons/patron-details', options);
+    } else { next(err) }
+  }
 });
 
 /* GET patron details. */
-patronsRouter.get('/details/:id', (req, res, next) => {
-  Patron.findById(req.params.id)
-    .then(patron => {
-      if (!patron) res.send(404);
-      else {
-        Loan.findAll({ where: { patron_id: patron.id } })
-        .then(loans => {
-          const title = `Patron Details: ${patron.dataValues.first_name} ${patron.dataValues.last_name}`;
-          res.render('patrons/patron-details', {
-            patron: patron.dataValues,
-            title,
-            loans
-          });
-        })
-      }
-    })
-    .catch(err => res.send(500));
+patronsRouter.get('/details/:id', async (req, res, next) => {
+  try {
+    const rawPatron = await Patron.findById(req.params.id);
+    const patron = rawPatron.dataValues;
+    if (!patron) throw new Error('Patron not found');
+    const loans = await Loan.findAll({ where: { patron_id: patron.id } });
+    const title = `Patron Details: ${patron.first_name} ${patron.last_name}`;
+    res.render('patrons/patron-details', { patron, title, loans });
+  } catch (err) { next(err) }
 });
 
 /* POST new patron details to update its DB row. */
-patronsRouter.post('/details/:id', (req, res, next) => {
-  Patron.findById(req.params.id)
-    .then(patron => patron.update(req.body))
-    .then(patron => res.redirect('/patrons/all'))
-    .catch(err => {
-      if (err.name === "SequelizeValidationError") {
-        const patron = Patron.build(req.body);
-        patron.id = req.params.id;
-
-        res.render('patrons/patron-details', {
-          title: patron.title,
-          patron,
-          loans: [],
-          errors: err.errors
-        });
-      } else { throw err; }
-    })
-    .catch(err => res.send(500));
+patronsRouter.post('/details/:id', async (req, res, next) => {
+  try {
+    const patron = await Patron.findById(req.params.id);
+    if (!patron) throw new Error('Patron not found');
+    await patron.update(req.body);
+    res.redirect('/patrons/all');
+  } catch (err) {
+    if (err.name === "SequelizeValidationError") {
+      try {
+        const options = Patron.valErrOptions(req.body, err.errors);
+        console.log(options);
+        options.patron.id = req.params.id;
+        options.title = `Patron Details: ${req.body.first_name} ${req.body.last_name}`;
+        options.loans = await Patron.getLoans(req.params.id, Loan);
+        res.render('patrons/patron-details', options);
+      } catch (e) { next(e) }
+    } else { next(err) }
+  }
 });
 
 module.exports = patronsRouter;
