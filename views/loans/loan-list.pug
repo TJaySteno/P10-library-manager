@@ -1,17 +1,13 @@
-extends loan-table
+extends ../layout
 
-block loan-list
-  tbody
-    each loan in loans
-      - const patronName = `${loan.patron.first_name} ${loan.patron.last_name}`;
-      tr
-        td
-          a(href=`/books/details/${loan.book.id}`)= loan.book.name
-        td
-          a(href=`/patrons/details/${loan.patron.id}`)= patronName
-        td= loan.loaned_on
-        td= loan.return_by
-        td= loan.returned_on
-        td
-          if !loan.returned_on
-            a(href="/books/return" class="button") Return Book
+block content
+  p
+    p
+      a(href="/loans/new" class="button") Create New Loan
+    p Filters
+      a(href="/loans/all")  All
+      span  |
+      a(href="/loans/overdue")  Overdue
+      span  |
+      a(href="/loans/checked_out")  Checked Out
+  include ../includes/loan-history

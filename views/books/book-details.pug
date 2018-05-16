@@ -20,4 +20,4 @@ block content
       input(id="first_published" type="text" name="first_published" placeholder="1985" value=`${book.first_published || ''}`)
     p
       input(type="submit" value= buttonText)
-  block book-loans
+  include ../includes/loan-history

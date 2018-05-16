@@ -1,6 +1,7 @@
 const express = require('express');
 const patronsRouter = express.Router();
 const Patron = require('../models').Patron;
+const Loan = require('../models').Loan;
 
 /* Reroute calls to '/patrons' */
 patronsRouter.get('/', (req, res, next) => res.redirect('/patrons/all'));
@@ -9,7 +10,7 @@ patronsRouter.get('/', (req, res, next) => res.redirect('/patrons/all'));
 patronsRouter.get('/all', (req, res, next) => {
   Patron.findAll().then(patrons => {
     res.render('patrons/patron-list', {
-      title: 'All Patrons',
+      title: 'Patrons Listing Page',
       patrons
     });
   })
@@ -45,11 +46,18 @@ patronsRouter.post('/details/new', (req, res, next) => {
 patronsRouter.get('/details/:id', (req, res, next) => {
   Patron.findById(req.params.id)
     .then(patron => {
-      res.render('patrons/patron-loans', {
-        title: patron.dataValues.title,
-        patron: patron.dataValues,
-        loans: []
-      });
+      if (!patron) res.send(404);
+      else {
+        Loan.findAll({ where: { patron_id: patron.id } })
+        .then(loans => {
+          const title = `Patron: ${patron.dataValues.first_name} ${patron.dataValues.last_name}`;
+          res.render('patrons/patron-details', {
+            patron: patron.dataValues,
+            title,
+            loans
+          });
+        })
+      }
     })
     .catch(err => res.send(500));
 });
@@ -64,7 +72,7 @@ patronsRouter.post('/details/:id', (req, res, next) => {
         const patron = Patron.build(req.body);
         patron.id = req.params.id;
 
-        res.render('patrons/patron-loans', {
+        res.render('patrons/patrondetails', {
           title: patron.title,
           patron,
           loans: [],

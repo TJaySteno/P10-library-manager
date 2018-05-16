@@ -1,6 +1,4 @@
-extends book-details
-
-block book-loans
+if loans
   h2 Loan History
   table
     thead
@@ -12,15 +10,16 @@ block book-loans
         th Returned on
         th Action
     tbody
-      each loan in loans
+      each raw_loan in loans
+        - const loan = raw_loan.dataValues;
         tr
           td
-            a(href=`/books/details/${loan.book.id}`)= loan.book.title
+            a(href=`/books/details/${loan.book_id}`)= loan.book_title
           td
-            a(href=`/patrons/details/${loan.patron.id}`)= loan.patron.name
+            a(href=`/patrons/details/${loan.patron_id}`)= loan.patron_name
           td= loan.loaned_on
           td= loan.return_by
           td= loan.returned_on
           td
             if (!loan.returned_on)
-              a(href=`/books/return/${loan.book.id}` class="button") Return Book
+              a(href=`/books/return/${loan.id}` class="button") Return Book

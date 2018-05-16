@@ -26,4 +26,4 @@ block content
       input(id="zip_code" type="text" name="zip_code" placeholder="30900" value=`${patron.zip_code || ''}`)
     p
       input(type="submit" value="Update")
-  block patron-loans
+  include ../includes/loan-history
