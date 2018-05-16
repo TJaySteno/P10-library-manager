@@ -55,5 +55,22 @@ module.exports = (sequelize, DataTypes) => {
     return_by: Loan.date('return_by')
   });
 
+  Loan.getTitleAndName = async (loans, Book, Patron) => {
+    for (let i = 0; i < loans.length; i++) {
+      const loanedBook = { attributes: ['title'], where: { id: loans[i].dataValues.book_id } };
+      const book = await Book.findOne(loanedBook);
+      loans[i].dataValues.book_title = book.dataValues.title;
+
+      const loaningPatron = {
+        attributes: ['first_name', 'last_name'],
+        where: { id: loans[i].dataValues.patron_id }
+      };
+      const patrons = await Patron.findOne(loaningPatron);
+      const name = `${patrons.dataValues.first_name} ${patrons.dataValues.last_name}`;
+      loans[i].dataValues.patron_name = name;
+    }
+    return loans;
+  }
+
   return Loan;
 };

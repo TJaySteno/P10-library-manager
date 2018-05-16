@@ -8,20 +8,22 @@ block content
           li= error.message
     p
       label(for="book_id") Book
-      select(id="book_id" name="book_info")
+      select(id="book_id" name="book_id")
         each book in books
-          option(value=`${book.id}-${book.title}`)= book.title
+          option(value=`${book.id}`)= book.title
     p
       label(for="patron_id") Patron
-      select(id="patron_id" name="patron_info")
+      select(id="patron_id" name="patron_id")
         each patron in patrons
-          - const name = `${patron.first_name} ${patron.last_name}`;
-          option(value=`${patron.id}-${name}`)= name
+          option(value=`${patron.id}`)= `${patron.first_name} ${patron.last_name}`
     p
       label(for="loaned_on") Loaned on:
-      input(id="loaned_on" name="loaned_on" type="text" value=`${loaned_on}`)
+      input(id="loaned_on" name="loaned_on" type="text" value=`${loaned_on}` placeholder="2018-12-31")
     p
       label(for="return_by") Return by:
-      input(id="return_by" name="return_by" type="text" value=`${return_by}`)
+      input(id="return_by" name="return_by" type="text" value=`${return_by}` placeholder="2018-12-31")
+    p
+      label(for="returned_on") Returned on:
+      input(id="returned_on" name="returned_on" type="text" value=`${returned_on || ''}` placeholder="2018-12-31")
     p
       input(type="submit" value="Create New Loan")

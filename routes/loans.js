@@ -1,5 +1,7 @@
 const express = require('express');
 const loansRouter = express.Router();
+const Op = require('sequelize').Op;
+
 const Loan = require('../models').Loan;
 const Book = require('../models').Book;
 const Patron = require('../models').Patron;
@@ -8,78 +10,70 @@ const Patron = require('../models').Patron;
 loansRouter.get('/', (req, res, next) => res.redirect('/loans/all'));
 
 /* GET all loans. */
-loansRouter.get('/all', (req, res, next) => {
-  Loan.findAll().then(loans => {
-    res.render('loans/loan-list', {
-      title: 'Loans Listing Page',
-      loans
-    })
-  })
-  .catch(err => next(err));
+loansRouter.get('/all', async (req, res, next) => {
+  try {
+    const rawLoans = await Loan.findAll();
+    const loans = await Loan.getTitleAndName(rawLoans, Book, Patron);
+    res.render('loans/loan-list', { loans, title: 'Loans Listing Page' });
+  } catch (err) { next(err) }
 });
 
 /* GET overdue loans. */
-loansRouter.get('/overdue', (req, res, next) => {
-  Loan.findAll({
-    // where return_by > now
-  }).then(loans => {
-    res.render('loans/loan-list', {
-      title: 'Overdue Loans',
-      loans
-    })
-  })
-  .catch(err => next(err));
+loansRouter.get('/overdue', async (req, res, next) => {
+  try {
+    const overdueLoans = { where: { return_by: { [Op.lt]: Loan.date('now')[0] }}};
+    const rawLoans = await Loan.findAll(overdueLoans);
+    const loans = await Loan.getTitleAndName(rawLoans, Book, Patron);
+    res.render('loans/loan-list', { loans, title: 'Overdue Loans' });
+  } catch (err) { next(err) }
 });
 
 /* GET loaned books. */
-loansRouter.get('/checked_out', (req, res, next) => {
-  Loan.findAll({
-    // where !returned_on
-  }).then(loans => {
-    res.render('loans/loan-list', {
-      title: 'Books Lent Out',
-      loans
-    })
-  })
-  .catch(err => next(err));
+loansRouter.get('/checked_out', async (req, res, next) => {
+  try {
+    const booksNotReturned = { where: { returned_on: { [Op.eq]: null }}};
+    const rawLoans = await Loan.findAll(booksNotReturned);
+    const loans = await Loan.getTitleAndName(rawLoans, Book, Patron);
+    res.render('loans/loan-list', { loans, title: 'Books Lent Out' });
+  } catch (err) { next(err) }
 });
 
 /* GET form to create a new loan. */
-loansRouter.get('/new', (req, res, next) => {
-  const options = {
-    title: 'New Loan',
-    loaned_on: Loan.date('loaned_on'),
-    return_by: Loan.date('return_by')
-  };
-  Book.findAll({ attributes: ['id', 'title'] })
-    .then(books => options.books = books)
-    .then(() => Patron.findAll({ attributes: ['id', 'first_name', 'last_name'] })
-      .then(patrons => options.patrons = patrons))
-    .then(() => res.render('loans/loan-new', options));
+loansRouter.get('/new', async (req, res, next) => {
+  try {
+    const options = Loan.newLoanOptions();
+    options.books = await Book.findAll({ attributes: ['id', 'title'] });
+    options.patrons = await Patron.findAll({ attributes: ['id', 'first_name', 'last_name'] });
+    res.render('loans/loan-new', options);
+  } catch (err) { next(err) }
 });
 
 /* POST form to create a new loan. */
-loansRouter.post('/new', (req, res, next) => {
-  const new_loan = Loan.createNewLoan(req.body);
-  // this doesn't update when book or patron is edited
-    // need to pull name/title each time
-
-  Loan.create(new_loan)
-    .then(loan => res.redirect('/loans/all'))
-    .catch(err => {
-      if (err.name === "SequelizeValidationError") {
-        const loan = Book.build(req.body);
-        loan.id = req.params.id;
-
-        res.render('loans/loan-loans', {
-          title: loan.title,
-          loan,
-          loans: [],
-          errors: err.errors
-        });
-      } else { throw err; }
-    })
-    .catch(err => console.log(err));
+loansRouter.post('/new', async (req, res, next) => {
+  try {
+    if (!req.body.returned_on) delete req.body.returned_on;
+    const alreadyLoanedBook = { where: {
+      book_id: req.body.book_id,
+      returned_on: { [Op.eq]: null }
+    }};
+    if (await Loan.findOne(alreadyLoanedBook)) {
+      const err = new Error('BookNotAvailable');
+      err.errors = [{ message: 'Book: This book is already being borrowed' }];
+      throw err;
+    }
+    await Loan.create(req.body);
+    res.redirect('/loans/all');
+  } catch (err) {
+    if (err.name === "SequelizeValidationError" || err.message === 'BookNotAvailable') {
+      try {
+        const options = Loan.newLoanOptions();
+        options.books = await Book.findAll({ attributes: ['id', 'title'] });
+        options.patrons = await Patron.findAll({ attributes: ['id', 'first_name', 'last_name'] });
+        options.errors = err.errors;
+        res.render('loans/loan-new', options);
+      } catch (e) { next(e) }
+    } else { next(err) }
+  }
 });
 
 module.exports = loansRouter;

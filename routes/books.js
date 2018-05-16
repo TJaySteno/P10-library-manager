@@ -52,9 +52,10 @@ booksRouter.post('/details/new', async (req, res, next) => {
     await Book.create(req.body);
     res.redirect('/books/all');
   } catch (err) {
-    err.name === "SequelizeValidationError"
-      ? res.render('books/book-details', Book.valErrOptions(req.body, err.errors))
-      : next(err)
+    if (err.name === "SequelizeValidationError") {
+      const options = Book.valErrOptions(req.body, err.errors);
+      res.render('books/book-details', options);
+    } else { next(err) };
   }
 });
 
@@ -63,7 +64,6 @@ booksRouter.get('/details/:id', async (req, res, next) => {
   try {
     const rawBook = await Book.findById(req.params.id);
     const book = rawBook.dataValues;
-    console.log(book);
     if (!book) throw new Error('Book not found');
     const loans = await Loan.findAll({ where: { book_id: book.id } });
     const title = `Book Details: ${book.title}`;
@@ -80,11 +80,13 @@ booksRouter.post('/details/:id', async (req, res, next) => {
     res.redirect('/books/details/' + book.id);
   } catch (err) {
     if (err.name === "SequelizeValidationError") {
-      const options = Book.valErrOptions(req.body, err.errors);
-      options.book.id = req.params.id;
-      options.title = `Book Details: ${req.body.title}`;
-      options.loans = await Book.getLoans(req.params.id, Loan);
-      res.render('books/book-details', options);
+      try {
+        const options = Book.valErrOptions(req.body, err.errors);
+        options.book.id = req.params.id;
+        options.title = `Book Details: ${req.body.title}`;
+        options.loans = await Book.getLoans(req.params.id, Loan);
+        res.render('books/book-details', options);
+      } catch (e) { next(e) }
     } else { next(err) }
   }
 });
@@ -114,17 +116,17 @@ booksRouter.post('/return/:id', async (req, res, next) => {
     await loan.update(req.body);
     res.redirect('/loans/all')
   } catch (err) {
-    try {
-      if (err.name === "SequelizeValidationError") {
+    if (err.name === "SequelizeValidationError") {
+      try {
         const rawLoan = await Loan.findById(req.params.id);
         const loan = rawLoan.dataValues;
         if (!loan) next(new Error('Unable to find this loan'));
         loan.title = `Return Book: ${loan.book_title}`;
         loan.now = Book.now();
-        loan.error = "Please provide a valid return date (yyyy-mm-dd) or leave that field blank";
+        loan.error = "Returned on: enter a valid end date or leave field empty";
         res.render('books/book-return', loan);
-      } else { next(err) }
-    } catch (e) { next(e) }
+      } catch (e) { next(e) }
+    } else { next(err) }
   }
 })
 

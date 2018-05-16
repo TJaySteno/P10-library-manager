@@ -4,11 +4,11 @@ block content
   p.
     #[strong Book Title:] #[span= book_title]
   p.
-    #[strong Loaned By:] #[span= patron_name]
+    #[strong Loaned by:] #[span= patron_name]
   p.
-    #[strong Loaned On:] #[span= loaned_on]
+    #[strong Loaned on:] #[span= loaned_on]
   p.
-    #[strong Return By:] #[span= return_by]
+    #[strong Return by:] #[span= return_by]
   form(action=`/books/return/${id}` method="post")
     p
       label(for="returned_on") Returned on:
