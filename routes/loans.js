@@ -21,14 +21,14 @@ loansRouter.get('/all', async (req, res, next) => {
 /* GET overdue loans. */
 loansRouter.get('/overdue', async (req, res, next) => {
   try {
-    const overdueLoans = { where: { return_by: { [Op.lt]: Loan.date('now')[0] }}};
+    const overdueLoans = { where: Loan.isOverdue(Op) };
     const rawLoans = await Loan.findAll(overdueLoans);
     const loans = await Loan.getTitleAndName(rawLoans, Book, Patron);
     res.render('loans/loan-list', { loans, title: 'Overdue Loans' });
   } catch (err) { next(err) }
 });
 
-/* GET loaned books. */
+/* GET current loans. */
 loansRouter.get('/checked_out', async (req, res, next) => {
   try {
     const booksNotReturned = { where: { returned_on: { [Op.eq]: null }}};

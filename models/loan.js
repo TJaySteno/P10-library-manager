@@ -49,28 +49,40 @@ module.exports = (sequelize, DataTypes) => {
     return date.toISOString().match(/^\d{4}-\d{2}-\d{2}/);
   }
 
+  // Return options object for '/loans/new'
   Loan.newLoanOptions = () => ({
     title: 'New Loan',
     loaned_on: Loan.date('now'),
     return_by: Loan.date('return_by')
   });
 
+  // Loop through a 'loans' array to get book titles and patron names
   Loan.getTitleAndName = async (loans, Book, Patron) => {
-    for (let i = 0; i < loans.length; i++) {
-      const loanedBook = { attributes: ['title'], where: { id: loans[i].dataValues.book_id } };
-      const book = await Book.findOne(loanedBook);
-      loans[i].dataValues.book_title = book.dataValues.title;
+    try {
+      for (let i = 0; i < loans.length; i++) {
+        const loanedBook = { attributes: ['title'], where: { id: loans[i].dataValues.book_id } };
+        const book = await Book.findOne(loanedBook);
+        loans[i].dataValues.book_title = book.dataValues.title;
 
-      const loaningPatron = {
-        attributes: ['first_name', 'last_name'],
-        where: { id: loans[i].dataValues.patron_id }
-      };
-      const patrons = await Patron.findOne(loaningPatron);
-      const name = `${patrons.dataValues.first_name} ${patrons.dataValues.last_name}`;
-      loans[i].dataValues.patron_name = name;
-    }
-    return loans;
+        const loaningPatron = {
+          attributes: ['first_name', 'last_name'],
+          where: { id: loans[i].dataValues.patron_id }
+        };
+        const patrons = await Patron.findOne(loaningPatron);
+        const name = `${patrons.dataValues.first_name} ${patrons.dataValues.last_name}`;
+        loans[i].dataValues.patron_name = name;
+      }
+      return loans;
+    } catch (err) { throw err }
   }
+
+  // Return options object to query for overdue loans
+  Loan.isOverdue = Op => ({
+    [Op.and]: [
+      { return_by: { [Op.lt]: Date.now() }},
+      { returned_on: { [Op.eq]: null }}
+    ]
+  })
 
   return Loan;
 };

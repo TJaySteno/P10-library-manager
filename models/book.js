@@ -36,14 +36,11 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {timestamps: false, underscored: true});
 
-  // Return a readable date (yyyy-mm-dd)
-  Book.now = () => new Date().toISOString().match(/^\d{4}-\d{2}-\d{2}/);
-
   // Return an array of loans for a given book
   Book.getLoans = (book_id, Loan) => Loan.findAll({ where: { book_id } });
 
   // Return an array of books of an array of loans containing book ids
-  Book.findBooks = async loans => {
+  Book.getBooks = async loans => {
     const books = [];
     for (let i = 0; i < loans.length; i++) {
       const id = loans[i].dataValues.book_id;

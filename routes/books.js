@@ -4,6 +4,7 @@ const Op = require('sequelize').Op;
 
 const Book = require('../models').Book;
 const Loan = require('../models').Loan;
+const Patron = require('../models').Patron;
 
 /* Reroute calls to '/books' */
 booksRouter.get('/', (req, res, next) => res.redirect('/books/all'));
@@ -19,30 +20,24 @@ booksRouter.get('/all', async (req, res, next) => {
 /* GET overdue books. */
 booksRouter.get('/overdue', async (req, res, next) => {
   try {
-    const overdueBooks = {
-      attributes: ['book_id'],
-      where: { return_by: { [Op.lt]: Book.now()[0] }}
-    };
-    const overdue = await Loan.findAll(overdueBooks);
-    const books = await Book.findBooks(overdue);
+    const overdue = { attributes: ['book_id'], where: Loan.isOverdue(Op) };
+    const overdueLoans = await Loan.findAll(overdue);
+    const books = await Book.getBooks(overdue);
     res.render('books/book-list', { books, title: 'Overdue Books' });
   } catch (err) { next(err) }
 });
 
-/* GET checkout out books. */
+/* GET books that are currently checked out. */
 booksRouter.get('/checked_out', async (req, res, next) => {
   try {
-    const booksNotReturned = {
-      attributes: ['book_id'],
-      where: { returned_on: { [Op.eq]: null }}
-    };
-    const notReturned = await Loan.findAll(booksNotReturned);
-    const books = await Book.findBooks(notReturned);
+    const notReturned = { attributes: ['book_id'], where: { returned_on: { [Op.eq]: null }}};
+    const notReturnedLoans = await Loan.findAll(notReturned);
+    const books = await Book.getBooks(notReturnedLoans);
     res.render('books/book-list', { books, title: 'Books Lent Out' });
   } catch (err) { next(err) }
 });
 
-/* GET form to allow creation of a new book. */
+/* GET form to create a new book. */
 booksRouter.get('/details/new', (req, res, next) =>
   res.render('books/book-details', { book: {}, title: 'New Book' }));
 
@@ -59,19 +54,20 @@ booksRouter.post('/details/new', async (req, res, next) => {
   }
 });
 
-/* GET book details. */
+/* GET a book's details. */
 booksRouter.get('/details/:id', async (req, res, next) => {
   try {
     const rawBook = await Book.findById(req.params.id);
     const book = rawBook.dataValues;
     if (!book) throw new Error('Book not found');
-    const loans = await Loan.findAll({ where: { book_id: book.id } });
+    const rawLoans = await Loan.findAll({ where: { book_id: book.id } });
+    const loans = await Loan.getTitleAndName(rawLoans, Book, Patron);
     const title = `Book Details: ${book.title}`;
     res.render('books/book-details', { title, book, loans });
   } catch (err) { next(err) }
 });
 
-/* POST new book details to update its DB row. */
+/* POST updated book details. */
 booksRouter.post('/details/:id', async (req, res, next) => {
   try {
     const book = await Book.findById(req.params.id);
@@ -84,26 +80,28 @@ booksRouter.post('/details/:id', async (req, res, next) => {
         const options = Book.valErrOptions(req.body, err.errors);
         options.book.id = req.params.id;
         options.title = `Book Details: ${req.body.title}`;
-        options.loans = await Book.getLoans(req.params.id, Loan);
+        const rawLoans = await Loan.findAll({ where: { book_id: options.book.id } });
+        options.loans = await Loan.getTitleAndName(rawLoans, Book, Patron);
         res.render('books/book-details', options);
       } catch (e) { next(e) }
     } else { next(err) }
   }
 });
 
-/* GET form to enter a book return. */
+/* GET book-return form. */
 booksRouter.get('/return/:id', async (req, res, next) => {
   try {
-    const rawLoan = await Loan.findById(req.params.id);
-    const loan = rawLoan.dataValues;
+    const rawLoan = [ await Loan.findById(req.params.id) ];
+    const fullLoan = await Loan.getTitleAndName(rawLoan, Book, Patron);
+    const loan = fullLoan[0].dataValues;
     if (!loan) throw new Error('Unable to find this loan');
     loan.title = `Return Book: ${loan.book_title}`;
-    loan.now = Book.now();
+    loan.now = Loan.date('now');
     res.render('books/book-return', loan);
   } catch (err) { next(err) }
 });
 
-/* POST book return form. */
+/* POST book-return form. */
 booksRouter.post('/return/:id', async (req, res, next) => {
   try {
     if (!req.body.returned_on) {
@@ -118,12 +116,13 @@ booksRouter.post('/return/:id', async (req, res, next) => {
   } catch (err) {
     if (err.name === "SequelizeValidationError") {
       try {
-        const rawLoan = await Loan.findById(req.params.id);
-        const loan = rawLoan.dataValues;
+        const rawLoan = [ await Loan.findById(req.params.id) ];
+        const fullLoan = await Loan.getTitleAndName(rawLoan, Book, Patron);
+        const loan = fullLoan[0].dataValues;
         if (!loan) next(new Error('Unable to find this loan'));
         loan.title = `Return Book: ${loan.book_title}`;
-        loan.now = Book.now();
-        loan.error = "Returned on: enter a valid end date or leave field empty";
+        loan.now = Loan.date('now');
+        loan.error = "Returned on: enter a valid end date";
         res.render('books/book-return', loan);
       } catch (e) { next(e) }
     } else { next(err) }

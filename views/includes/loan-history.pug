@@ -10,8 +10,8 @@ if loans
         th Returned on
         th Action
     tbody
-      each raw_loan in loans
-        - const loan = raw_loan.dataValues;
+      each rawLoan in loans
+        - const loan = rawLoan.dataValues;
         tr
           td
             a(href=`/books/details/${loan.book_id}`)= loan.book_title
