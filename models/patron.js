@@ -11,15 +11,13 @@ module.exports = (sequelize, DataTypes) => {
     first_name: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: { msg: "Please provide a first name" },
-        isAlpha: { msg: "First name must only contain letters" }
+        notEmpty: { msg: "Please provide a first name" }
       }
     },
     last_name: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: { msg: "Please provide a last name" },
-        isAlpha: { msg: "Last name must only contain letters" }
+        notEmpty: { msg: "Please provide a last name" }
       }
     },
     address: {
@@ -38,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       validate: {
         is: {
-          args: [["^MCL[0-9]{4}$"]],
+          args: /^MCL\d{4}$/,
           msg: "Please enter a valid library ID (MCL####)"
         }
       }

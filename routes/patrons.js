@@ -72,7 +72,7 @@ patronsRouter.post('/details/:id', (req, res, next) => {
         const patron = Patron.build(req.body);
         patron.id = req.params.id;
 
-        res.render('patrons/patrondetails', {
+        res.render('patrons/patron-details', {
           title: patron.title,
           patron,
           loans: [],
