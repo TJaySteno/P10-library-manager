@@ -25,6 +25,12 @@ module.exports = {
       },
       returned_on: {
         type: Sequelize.DATE
+      },
+      book_id: {
+        type: Sequelize.INTEGER
+      },
+      patron_id: {
+        type: Sequelize.INTEGER
       }
     });
   },

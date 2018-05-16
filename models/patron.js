@@ -1,5 +1,7 @@
 'use strict';
+
 module.exports = (sequelize, DataTypes) => {
+
   var Patron = sequelize.define('Patron', {
     id: {
       type: DataTypes.INTEGER,
@@ -9,13 +11,15 @@ module.exports = (sequelize, DataTypes) => {
     first_name: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: { msg: "Please provide a first name" }
+        notEmpty: { msg: "Please provide a first name" },
+        isAlpha: { msg: "First name must only contain letters" }
       }
     },
     last_name: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: { msg: "Please provide a last name" }
+        notEmpty: { msg: "Please provide a last name" },
+        isAlpha: { msg: "Last name must only contain letters" }
       }
     },
     address: {
@@ -47,10 +51,8 @@ module.exports = (sequelize, DataTypes) => {
           msg: "Please enter a 5 digit zip code"
         }
       }
-    },
-  }, {});
-  Patron.associate = function(models) {
-    // associations can be defined here
-  };
+    }
+  }, {timestamps: false, underscored: true});
+
   return Patron;
 };
