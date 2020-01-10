@@ -23,7 +23,6 @@ booksRouter.get('/all', async (req, res, next) => {
 booksRouter.get('/overdue', async (req, res, next) => {
   try {
     const overdue = { attributes: ['book_id'], where: Loan.isOverdue(Op) };
-    // const overdueLoans = await Loan.findAll(overdue);
     const books = await Book.getBooks(overdue);
     res.render('books/book-list', { books, title: 'Overdue Books' });
   } catch (err) { next(err); }
