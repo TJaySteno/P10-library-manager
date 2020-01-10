@@ -23,7 +23,7 @@ booksRouter.get('/all', async (req, res, next) => {
 booksRouter.get('/overdue', async (req, res, next) => {
   try {
     const overdue = { attributes: ['book_id'], where: Loan.isOverdue(Op) };
-    const overdueLoans = await Loan.findAll(overdue);
+    // const overdueLoans = await Loan.findAll(overdue);
     const books = await Book.getBooks(overdue);
     res.render('books/book-list', { books, title: 'Overdue Books' });
   } catch (err) { next(err); }
@@ -52,14 +52,14 @@ booksRouter.post('/details/new', async (req, res, next) => {
     if (err.name === 'SequelizeValidationError') {
       const options = Book.valErrOptions(req.body, err.errors);
       res.render('books/book-details', options);
-    } else { next(err); };
+    } else { next(err); }
   }
 });
 
 /* GET a book's details. */
 booksRouter.get('/details/:id', async (req, res, next) => {
   try {
-    const rawBook = await Book.findById(req.params.id);
+    const rawBook = await Book.findByPk(req.params.id);
     const book = rawBook.dataValues;
     if (!book) throw new Error('Book not found');
     const rawLoans = await Loan.findAll({ where: { book_id: book.id } });
@@ -72,7 +72,7 @@ booksRouter.get('/details/:id', async (req, res, next) => {
 /* POST updated book details. */
 booksRouter.post('/details/:id', async (req, res, next) => {
   try {
-    const book = await Book.findById(req.params.id);
+    const book = await Book.findByPk(req.params.id);
     if (!book) throw new Error('Book not found');
     await book.update(req.body);
     res.redirect('/books/details/' + book.id);
@@ -93,7 +93,7 @@ booksRouter.post('/details/:id', async (req, res, next) => {
 /* GET book-return form. */
 booksRouter.get('/return/:id', async (req, res, next) => {
   try {
-    const rawLoan = [await Loan.findById(req.params.id)];
+    const rawLoan = [await Loan.findByPk(req.params.id)];
     const fullLoan = await Loan.getTitleAndName(rawLoan, Book, Patron);
     const loan = fullLoan[0].dataValues;
     if (!loan) throw new Error('Unable to find this loan');
@@ -112,14 +112,14 @@ booksRouter.post('/return/:id', async (req, res, next) => {
       throw err;
     }
 
-    const loan = await Loan.findById(req.params.id);
+    const loan = await Loan.findByPk(req.params.id);
     if (!loan) throw new Error('Unable to find this loan');
     await loan.update(req.body);
     res.redirect('/loans/all');
   } catch (err) {
     if (err.name === 'SequelizeValidationError') {
       try {
-        const rawLoan = [await Loan.findById(req.params.id)];
+        const rawLoan = [await Loan.findByPk(req.params.id)];
         const fullLoan = await Loan.getTitleAndName(rawLoan, Book, Patron);
         const loan = fullLoan[0].dataValues;
         if (!loan) next(new Error('Unable to find this loan'));

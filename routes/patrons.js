@@ -38,7 +38,7 @@ patronsRouter.post('/details/new', async (req, res, next) => {
 /* GET a patron's details. */
 patronsRouter.get('/details/:id', async (req, res, next) => {
   try {
-    const rawPatron = await Patron.findById(req.params.id);
+    const rawPatron = await Patron.findByPk(req.params.id);
     const patron = rawPatron.dataValues;
     if (!patron) throw new Error('Patron not found');
     const rawLoans = await Loan.findAll({ where: { patron_id: patron.id } });
@@ -51,7 +51,7 @@ patronsRouter.get('/details/:id', async (req, res, next) => {
 /* POST updated patron details. */
 patronsRouter.post('/details/:id', async (req, res, next) => {
   try {
-    const patron = await Patron.findById(req.params.id);
+    const patron = await Patron.findByPk(req.params.id);
     if (!patron) throw new Error('Patron not found');
     await patron.update(req.body);
     res.redirect('/patrons/all');
